@@ -14,22 +14,27 @@ namespace DicomToJSON
         /// <summary>
         /// The amount of pixels in a row
         /// </summary>
-        public int rows;
+        public int width;
 
         /// <summary>
         /// The amount of pixels in a collumn
         /// </summary>
-        public int cols;
+        public int height;
+
+        /// <summary>
+        /// the breath of the grid in voxels
+        /// </summary>
+        public int breath;
 
         /// <summary>
         /// The space between each row in mm
         /// </summary>
-        public float rowSpacing;
+        public float pixelSpacingX;
 
         /// <summary>
         /// The space between each column in mm
         /// </summary>
-        public float columnSpacing;
+        public float pixelSpacingY;
 
         /// <summary>
         /// The thickness of each slice in mm
@@ -45,6 +50,11 @@ namespace DicomToJSON
         /// how many pixels are in the data
         /// </summary>
         abstract public int Length();
+
+        /// <summary>
+        /// A generic identifier that all the dicoms should have in common
+        /// </summary>
+        public string frameOfReferenceId;
 
         /// <summary>
         /// Get the data out of the object as a series of long ints 

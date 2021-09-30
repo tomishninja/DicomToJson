@@ -95,23 +95,23 @@ namespace DicomToJSON
                 }
 
                 // get the amount of rows the image data set has out of the dicom file.
-                if (!dicoms[index].Dataset.TryGetSingleValue(DicomTag.Rows, out dicomFile.rows))
+                if (!dicoms[index].Dataset.TryGetSingleValue(DicomTag.Rows, out dicomFile.width))
                 {
-                    if (!dicoms[index].Dataset.TryGetSingleValue(DicomTag.NumberOfVerticalPixels, out dicomFile.rows))
+                    if (!dicoms[index].Dataset.TryGetSingleValue(DicomTag.NumberOfVerticalPixels, out dicomFile.width))
                     {
                         // if the value for rows dosn't exist mark the entry as -1
-                        dicomFile.rows = -1;
+                        dicomFile.width = -1;
                     }
                 }
 
                 // get the amount of coloumns in the image
-                if (!dicoms[index].Dataset.TryGetSingleValue(DicomTag.Columns, out dicomFile.cols))
+                if (!dicoms[index].Dataset.TryGetSingleValue(DicomTag.Columns, out dicomFile.height))
                 {
                     // try getting this data  another way then
-                    if (!dicoms[index].Dataset.TryGetSingleValue(DicomTag.NumberOfHorizontalPixels, out dicomFile.cols))
+                    if (!dicoms[index].Dataset.TryGetSingleValue(DicomTag.NumberOfHorizontalPixels, out dicomFile.height))
                     {
                         // if the value for rows dosn't exist mark the entry as -1
-                        dicomFile.cols = -1;
+                        dicomFile.height = -1;
                     }
                 }
 
@@ -151,8 +151,8 @@ namespace DicomToJSON
 
                 // This should always return a value that is has a length of two
                 // This will be the value for each row which should always be the first value found
-                dicomFile.rowSpacing = temp[0];
-                dicomFile.columnSpacing = temp[1];
+                dicomFile.pixelSpacingX = temp[0];
+                dicomFile.pixelSpacingY = temp[1];
 
                 // try to get the thickness of the the slice or else set it to an invalid number
                 if (!dicoms[index].Dataset.TryGetSingleValue(DicomTag.SliceThickness, out dicomFile.sliceThickness))
@@ -248,23 +248,23 @@ namespace DicomToJSON
             }
 
             // get the amount of rows the image data set has out of the dicom file.
-            if (!dicoms[0].Dataset.TryGetSingleValue(DicomTag.Rows, out dicomFile.rows))
+            if (!dicoms[0].Dataset.TryGetSingleValue(DicomTag.Rows, out dicomFile.width))
             {
-                if (!dicoms[0].Dataset.TryGetSingleValue(DicomTag.NumberOfVerticalPixels, out dicomFile.rows))
+                if (!dicoms[0].Dataset.TryGetSingleValue(DicomTag.NumberOfVerticalPixels, out dicomFile.width))
                 {
                     // if the value for rows dosn't exist mark the entry as -1
-                    dicomFile.rows = -1;
+                    dicomFile.width = -1;
                 }
             }
 
             // get the amount of coloumns in the image
-            if (!dicoms[0].Dataset.TryGetSingleValue(DicomTag.Columns, out dicomFile.cols))
+            if (!dicoms[0].Dataset.TryGetSingleValue(DicomTag.Columns, out dicomFile.height))
             {
                 // try getting this data  another way then
-                if (!dicoms[0].Dataset.TryGetSingleValue(DicomTag.NumberOfHorizontalPixels, out dicomFile.cols))
+                if (!dicoms[0].Dataset.TryGetSingleValue(DicomTag.NumberOfHorizontalPixels, out dicomFile.height))
                 {
                     // if the value for rows dosn't exist mark the entry as -1
-                    dicomFile.cols = -1;
+                    dicomFile.height = -1;
                 }
             }
 
@@ -306,8 +306,8 @@ namespace DicomToJSON
             // TODO this dosn't take into account what will happen if the user only recorded one line of pixels since my work dosn't focus on it
 
             // Save the data from pixel spacing
-            dicomFile.rowSpacing = aspectOfPixel[0];
-            dicomFile.columnSpacing = aspectOfPixel[1];
+            dicomFile.pixelSpacingX = aspectOfPixel[0];
+            dicomFile.pixelSpacingY = aspectOfPixel[1];
 
             // try to get the thickness of the the slice or else set it to an invalid number
 
@@ -321,6 +321,8 @@ namespace DicomToJSON
             {
                 dicomFile.spacingBetweenSlices = -1;
             }
+
+            dicomFile.breath = dicoms.Count;
 
             // loop though all of the dicoms in order now
             for (int index = 1; index < dicoms.Count; index++)
@@ -367,13 +369,13 @@ namespace DicomToJSON
                 {
                     if (!dicoms[index].Dataset.TryGetSingleValue(DicomTag.NumberOfVerticalPixels, out tempDicomRows))
                     {
-                        if (dicomFile.cols != tempDicomRows)
+                        if (dicomFile.height != tempDicomRows)
                         {
                             throw new NonConsistantDicomDirectoryException("The number of rows at index" + index);
                         }
                     }
                 }
-                else if (dicomFile.rows != tempDicomRows)
+                else if (dicomFile.width != tempDicomRows)
                 {
                     throw new NonConsistantDicomDirectoryException("The number of rows at index" + index);
                 }
@@ -385,13 +387,13 @@ namespace DicomToJSON
                     // try getting this data  another way then
                     if (dicoms[index].Dataset.TryGetSingleValue(DicomTag.NumberOfHorizontalPixels, out tempDicomCols))
                     {
-                        if (dicomFile.cols != tempDicomCols)
+                        if (dicomFile.height != tempDicomCols)
                         {
                             throw new NonConsistantDicomDirectoryException("The number of columns at index" + index);
                         }
                     }
                 }
-                else if(dicomFile.cols != tempDicomCols)
+                else if(dicomFile.height != tempDicomCols)
                 {
                     throw new NonConsistantDicomDirectoryException("The number of columns at index" + index);
                 }
@@ -431,7 +433,7 @@ namespace DicomToJSON
                 }
 
                 // check input data against the old data and throw an exception if the file isn't exact
-                if (dicomFile.rowSpacing != aspectOfPixel[0] || dicomFile.columnSpacing != aspectOfPixel[1])
+                if (dicomFile.pixelSpacingX != aspectOfPixel[0] || dicomFile.pixelSpacingY != aspectOfPixel[1])
                 {
                     throw new NonConsistantDicomDirectoryException("Pixel Spacing Dicom Tag at index " + index);
                 }
